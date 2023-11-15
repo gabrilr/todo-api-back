@@ -15,12 +15,12 @@ const userSchema = new mongoose.Schema({
             message: 'Correo electrónico no válido',
         },
     },
-    name:{
+    nombre:{
         type: String,
         required: true,
         trim: true,
     },
-    password: {
+    contrasena: {
         type: String,
         required: true,
         trim: true,
@@ -28,12 +28,12 @@ const userSchema = new mongoose.Schema({
         minlength: 60, 
         maxlength: 60, 
     },
-    type_user: {
-        type: String,
-        required: true,
-        trim: true,
-        enum: ['admin', 'colab'], // Tipos de usuario permitidos permitidos
-    },
+    // type_user: {
+    //     type: String,
+    //     required: true,
+    //     trim: true,
+    //     enum: ['admin', 'colab'], // Tipos de usuario permitidos permitidos
+    // },
     created_at: {
         type: Date,
         default: Date.now,

@@ -15,7 +15,7 @@ const ticketSchema = new mongoose.Schema({
         trim: true,
         minlength: 10,
     },
-    id_Responsable: {
+    id_responsable: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
     },
@@ -28,16 +28,16 @@ const ticketSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             required: true,
         },
-        comentario: {
+        contenido: {
             type: String,
             required: true,
             trim: true,
-            minlength: 5,
+            minlength: 2,
         },
-        foto: {
-            type: String,
-            trim: true,
-        },
+        // foto: {
+        //     type: String,
+        //     trim: true,
+        // },
         fecha: {
             type: Date,
             default: Date.now,

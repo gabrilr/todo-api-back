@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 const projectSchema = new mongoose.Schema({
+
     id_responsable: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
@@ -16,12 +17,17 @@ const projectSchema = new mongoose.Schema({
         trim: true,
         minlength: 10,
     },
-    fechaInicio: {
+    clave:{
+        type: String,
+        required: true,
+        trim: true,
+    },
+    fecha_inicio: {
         type: Date,
         required: true,
         default: Date.now
     },
-    fechaFin: {
+    fecha_fin: {
         type: Date,
     },
     colaboradores: [{

@@ -4,9 +4,9 @@ import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
 
 export const registerUser = async (req, res) => {
-    const { email, name, password, type_user } = req.body;
+    const { email, nombre, contrasena } = req.body;
 
-    if (![email, name, password, type_user].includes('')) {
+    if (![email, nombre, contrasena].includes('')) {
         try {
 
             // Validación de correo.
@@ -16,18 +16,17 @@ export const registerUser = async (req, res) => {
             }
 
             // Validación de la contraseña
-            if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password) || !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+            if (contrasena.length < 8 || !/[A-Z]/.test(contrasena) || !/[a-z]/.test(contrasena) || !/\d/.test(contrasena) || !/[!@#$%^&*(),.?":{}|<>]/.test(contrasena)) {
                 return res.status(400).json({ mensaje: "La contraseña no cumple con los requisitos mínimos." });
             }
 
-            // Hasheo de la contraseña recibids por el body
-            const passwHash = await bcrypt.hash(password, 10);
+            // Hasheo de la contraseña recibida
+            const contrasena_hash = await bcrypt.hash(contrasena, 10);
 
             const newUser = new User({
                 email,
-                name,
-                password: passwHash,
-                type_user
+                nombre,
+                contrasena: contrasena_hash,
             });
 
             const userSaved = await newUser.save();
@@ -52,8 +51,7 @@ export const registerUser = async (req, res) => {
             res.json({
                 id: userSaved._id,
                 email: userSaved.email,
-                name: userSaved.name,
-                type_user: userSaved.type_user
+                nombre: userSaved.nombre,
             });
 
         } catch (error) {

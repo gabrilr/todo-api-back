@@ -2,12 +2,13 @@ import Project from "../models/project.model.js";
 import User from "../models/user.model.js";
 
 export const registerProject = async (req, res) => {
-    const { titulo, descripcion, fechaInicio } = req.body;
 
-    if (![titulo, descripcion, fechaInicio].includes('')) {
+    const { titulo, descripcion, clave, fecha_inicio } = req.body;
+
+    if (![titulo, descripcion, clave, fecha_inicio].includes('')) {
 
         // Validamos el formato de fecha con expresiones regulares.
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaInicio)) {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha_inicio)) {
             return res.status(400).json({ mensaje: "Formato de fecha de inicio no válido" });
         }
 
@@ -24,7 +25,8 @@ export const registerProject = async (req, res) => {
                         id_responsable,
                         titulo,
                         descripcion,
-                        fechaInicio
+                        clave,
+                        fecha_inicio
                     });
 
                     const projectSaved = await newProject.save();
@@ -33,7 +35,7 @@ export const registerProject = async (req, res) => {
                         id_responsable: projectSaved.id_responsable,
                         titulo: projectSaved.titulo,
                         descripcion: projectSaved.descripcion,
-                        fechaInicio: projectSaved.fechaInicio
+                        fecha_inicio: projectSaved.fecha_inicio
                     });
 
                 } catch (error) {
@@ -55,14 +57,26 @@ export const registerProject = async (req, res) => {
     }
 };
 
-export const allProject = async (req, res) => {
+//db.prueba.find({ $or: [{author:/miguel/i}, {title: /miguel/i}] }); no borrar xd
+export const allProjects = async (req, res) => {
 
     try {
-
-        const projects = await Project.find().select('titulo');
-
+        //const projects = await Project.find({_id: req.params.id}).select('titulo ');
+        //const projects = await Project.find({ id_responsable: idResponsableBuscado }, { titulo: 1, clave: 1, descripcion: 1, _id: 1 });
+        const projects = await Project.find({id_responsable: idResponsableBuscado,
+                            colaboradores: {
+                                $elemMatch: { id_colaborador: idColaboradorBuscado }
+                            }
+                        }, { titulo: 1, clave: 1, descripcion: 1, _id: 1 });
+        //     , (err, projects) => {
+        //     if (err) {
+        //         console.error(err);
+        //     } else {
+        //         console.log(projects);
+        //     }
+        // }
+        //);
         try {
-
             res.json(
             // {
             //     _id : project._id,
@@ -70,13 +84,11 @@ export const allProject = async (req, res) => {
             //     titulo : project.titulo,
             //     descripcion : project.descripcion,
             // }
-
                 projects
-
             );
 
         } catch (error) {
-            res.json("Falla :c");
+            res.status(500).json({ mensaje: "Error al obtener los proyectos" });
         }
 
     } catch (error) {
