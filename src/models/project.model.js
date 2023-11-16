@@ -4,6 +4,7 @@ const projectSchema = new mongoose.Schema({
 
     id_responsable: {
         type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
         required: true,
     },
     titulo: {
@@ -21,7 +22,15 @@ const projectSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
+        
+        minlength: 6,
     },
+    colaboradores: [{
+        id_colaborador: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+        },
+    }],
     fecha_inicio: {
         type: Date,
         required: true,
@@ -30,16 +39,6 @@ const projectSchema = new mongoose.Schema({
     fecha_fin: {
         type: Date,
     },
-    colaboradores: [{
-        id_colaborador: {
-            type: mongoose.Schema.Types.ObjectId,
-        },
-    }],
-    tickets: [{
-        id_ticket: {
-            type: mongoose.Schema.Types.ObjectId,
-        },
-    }],
 });
 
 export default mongoose.model('Project', projectSchema);

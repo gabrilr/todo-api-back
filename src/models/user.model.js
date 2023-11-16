@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
+        minlength: 1
     },
     contrasena: {
         type: String,
@@ -27,23 +28,9 @@ const userSchema = new mongoose.Schema({
         //Logitud minima y maxima para la contraseña.
         minlength: 60, 
         maxlength: 60, 
-    },
-    // type_user: {
-    //     type: String,
-    //     required: true,
-    //     trim: true,
-    //     enum: ['admin', 'colab'], // Tipos de usuario permitidos permitidos
-    // },
-    created_at: {
-        type: Date,
-        default: Date.now,
-        validate: {
-            validator: function (value) {
-                return value <= new Date();
-            },
-            message: 'La fecha de creación no puede estar en el futuro',
-        },
-    },
+    }
+}, {
+    timestamps: true, // Agrega createdAt y updatedAt automáticamente
 });
 
 export default mongoose.model('User', userSchema);

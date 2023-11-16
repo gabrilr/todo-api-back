@@ -3,16 +3,17 @@ import User from "../models/user.model.js";
 
 export const registerProject = async (req, res) => {
 
-    const { titulo, descripcion, clave, fecha_inicio } = req.body;
+    const { id_responsable, titulo, descripcion, clave, fecha_inicio } = req.body;
 
-    if (![titulo, descripcion, clave, fecha_inicio].includes('')) {
+    if (![id_responsable, titulo, descripcion, clave, fecha_inicio].includes('')) {
 
         // Validamos el formato de fecha con expresiones regulares.
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha_inicio)) {
-            return res.status(400).json({ mensaje: "Formato de fecha de inicio no válido" });
+        if (fecha_inicio == "") {
+            console.log(new Date());
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha_inicio)) {
+                return res.status(400).json({ mensaje: "Formato de fecha de inicio no válido" });
+            }
         }
-
-        const id_responsable = req.params.id;
 
         try {
             // Validamos que exista el usuario antes de crear el proyecto.
@@ -26,6 +27,7 @@ export const registerProject = async (req, res) => {
                         titulo,
                         descripcion,
                         clave,
+                        colaboradores: [],
                         fecha_inicio
                     });
 

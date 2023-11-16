@@ -1,9 +1,17 @@
 import mongoose from 'mongoose';
 
 const ticketSchema = new mongoose.Schema({
-    
+    id_proyecto: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'Project'
+    },
+    id_responsable: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'User'
+    },
     /* En este esquema el único dato que no será obligatorio será 'descripcion' */
-
     titulo: {
         type: String,
         required: true,
@@ -15,18 +23,16 @@ const ticketSchema = new mongoose.Schema({
         trim: true,
         minlength: 10,
     },
-    id_responsable: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
-    },
     fotos: [{
         type: String,
         trim: true,
+        unique: true
     }],
     comentarios: [{
         id_usuario: {
             type: mongoose.Schema.Types.ObjectId,
             required: true,
+            ref: 'User'
         },
         contenido: {
             type: String,
@@ -34,10 +40,6 @@ const ticketSchema = new mongoose.Schema({
             trim: true,
             minlength: 2,
         },
-        // foto: {
-        //     type: String,
-        //     trim: true,
-        // },
         fecha: {
             type: Date,
             default: Date.now,
