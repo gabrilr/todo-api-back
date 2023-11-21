@@ -103,3 +103,64 @@ export const updateUser = async (req, res) => {
     }
 };
 
+export const login = async (req, res) => {
+
+    const { id } = req.body;
+
+    if (![id].includes('')) {
+
+        try {
+            const user = await User.findById(id);
+            if (!user) {
+                return res.status(404).json({ error: 'Usuario no encontrado' });
+            }
+            //Crear token
+            /* jwt.sign(
+                {
+                    id: userSaved._id,
+                },
+                "qwerty321",
+                {
+                    expiresIn: "1d",
+                },
+                (err, token) => {
+                    if(err) console.log(err);
+                    res.json({token});
+                }
+            ); */
+            res.json({status: "in"});
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({ mensaje: "Error interno del servidor, usuario no guardado." });
+        }
+    }
+};
+export const logout = async (req, res) => {
+
+    const { id } = req.body;
+
+
+    try {
+        //Destruccion del token
+        /* jwt.sign(
+            {
+                id: userSaved._id,
+            },
+            "qwerty321",
+            {
+                expiresIn: "1d",
+            },
+            (err, token) => {
+                if(err) console.log(err);
+                res.json({token});
+            }
+        ); */
+        res.json({status: "out"});
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ mensaje: "Error interno del servidor, usuario no guardado." });
+    }
+
+};
