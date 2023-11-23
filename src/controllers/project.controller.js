@@ -1,5 +1,6 @@
 import Project from "../models/project.model.js";
 import User from "../models/user.model.js";
+import Ticket from "../models/ticket.model.js";
 import { generarCodigoAleatorio } from '../libs/rnd.js';
 import moment from 'moment';
 
@@ -109,17 +110,31 @@ export const allProjects = async (req, res) => {
               ],
             },
             { titulo: 1, clave: 1, descripcion: 1, _id: 1 }
-          );
+        );
 
-          console.log('Proyectos encontrados:', projects);
-          res.json(projects);
+        const myprojects = await Promise.all(projects.map(async (project) => {
 
+            const totalTickets = await Ticket.countDocuments({ id_proyecto: project._id });
+            const ticketsDone = await Ticket.countDocuments({ id_proyecto: project._id, estatus: 'done' });
+            const ticketsCheck = await Ticket.find({ id_proyecto: project._id, estatus: 'done' });
+            
+            //proyecto: project,
+            return {
+                titulo: project.titulo,
+                clave: project.clave,
+                totalTickets: totalTickets,
+                ticketsDone: ticketsDone,
+                ticketsCheck: ticketsCheck,
+            };
+
+        }));
+
+        res.json(myprojects);
 
     } catch (error) {
         console.error(error);
         res.status(500).json({ mensaje: "Error interno del servidor al crear el proyecto" });
     }
-
 }
 
 export const addNewColab = async (req, res) => {

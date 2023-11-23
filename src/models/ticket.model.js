@@ -23,6 +23,12 @@ const ticketSchema = new mongoose.Schema({
         trim: true,
         minlength: 10,
     },
+    estatus: {
+        type: String,
+        trim: true,
+        enum: ['todo', 'doing', 'check', 'done'],
+        default: 'todo',
+    },
     fotos: [{
         type: String,
         trim: true,
