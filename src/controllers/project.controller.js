@@ -9,23 +9,23 @@ export const registerProject = async (req, res) => {
     let fecha_inicio = req.body.fecha_inicio;
 
     if (![id_responsable, titulo, descripcion].includes('')) {
-        
+
         //Si no se agrega la fecha se le agrega por defecto la fecha de hoy
         if (fecha_inicio == "") {
 
             const hoy = moment();
             fecha_inicio = hoy.format('YYYY-MM-DD');
-            console.log(hoy.format('YYYY-MM-DD'));
+            //console.log(hoy.format('YYYY-MM-DD'));
         }
         // Validamos el formato de fecha con expresiones regulares.
         if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha_inicio)) {
-                return res.status(400).json({ mensaje: "Formato de fecha de inicio no válido" });
+            return res.status(400).json({ mensaje: "Formato de fecha de inicio no válido" });
         }
 
         try {
             // Validamos que exista el usuario antes de crear el proyecto.
             const userFound = await User.findById(id_responsable);
-            
+
             if (userFound) {
 
                 let clave = generarCodigoAleatorio();
@@ -81,14 +81,18 @@ export const registerProject = async (req, res) => {
 //db.prueba.find({ $or: [{author:/miguel/i}, {title: /miguel/i}] }); no borrar xd
 export const allProjects = async (req, res) => {
 
+    const id = req.body.id;
+
     try {
         //const projects = await Project.find({_id: req.params.id}).select('titulo ');
         //const projects = await Project.find({ id_responsable: idResponsableBuscado }, { titulo: 1, clave: 1, descripcion: 1, _id: 1 });
-        const projects = await Project.find({id_responsable: idResponsableBuscado,
-                            colaboradores: {
-                                $elemMatch: { id_colaborador: idColaboradorBuscado }
-                            }
-                        }, { titulo: 1, clave: 1, descripcion: 1, _id: 1 });
+        // const projects = await Project.find({id_responsable: id, colaboradores: id},
+        //                             { titulo: 1, clave: 1, descripcion: 1, _id: 1 });
+
+                            // colaboradores: {
+                            //     $elemMatch: { id_colaborador: id }
+                            // }
+                        //Project.find({ colaboradores: userId });
         //     , (err, projects) => {
         //     if (err) {
         //         console.error(err);
@@ -97,15 +101,42 @@ export const allProjects = async (req, res) => {
         //     }
         // }
         //);
+        const projects = await Project.find(
+            {
+              $or: [
+                { id_responsable: id },
+                { colaboradores: id },
+              ],
+            },
+            { titulo: 1, clave: 1, descripcion: 1, _id: 1 }
+          );
+
+          console.log('Proyectos encontrados:', projects);
+          res.json(projects);
+
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ mensaje: "Error interno del servidor al crear el proyecto" });
+    }
+
+}
+
+export const addNewColab = async (req, res) => {
+
+    //const id_proyecto = req.body.id;
+    const { id_proyecto, id } = req.body;
+
+    try {
+        
         try {
+            const proyectoActualizado = await Project.findByIdAndUpdate(
+                id_proyecto ,
+                { $push: { colaboradores: id } },
+                { new: true }
+            );
             res.json(
-            // {
-            //     _id : project._id,
-            //     id_responsable : project.id_responsable,
-            //     titulo : project.titulo,
-            //     descripcion : project.descripcion,
-            // }
-                projects
+                {mensaje: 'ok'}
             );
 
         } catch (error) {

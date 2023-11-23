@@ -10,7 +10,7 @@ router.post('/user/register', registerUser);
 //router.put('/user/update', updateUser);
 
 router.post('/project/register', registerProject);
-router.get('/project/all', allProjects);
+router.post('/project/all', allProjects);
 
 router.post('/ticket/register/:id', registerTicket);
 
