@@ -21,6 +21,17 @@ export const registerProject = async (req, res) => {
 
             if (userFound) {
 
+                let clave = generarCodigoAleatorio();
+                let claveRepetida = await Project.find({ clave: clave });
+
+                //console.log(JSON.stringify(claveRepetida));
+                while(!claveRepetida.length === 0){
+
+                    console.log('clave repetida');
+                    clave = generarCodigoAleatorio();
+                    claveRepetida = await Project.findOne({ clave: clave });
+                }
+
                 try {
                     const newProject = new Project({
                         id_responsable,
@@ -36,6 +47,7 @@ export const registerProject = async (req, res) => {
                     res.json({
                         id_responsable: projectSaved.id_responsable,
                         titulo: projectSaved.titulo,
+                        clave: projectSaved.clave,
                         descripcion: projectSaved.descripcion,
                         fecha_inicio: projectSaved.fecha_inicio
                     });
