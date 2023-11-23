@@ -22,15 +22,15 @@ const projectSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
-        
+        unique: true,
         minlength: 6,
     },
-    colaboradores: [{
-        id_colaborador: {
+    colaboradores: [
+        {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
         },
-    }],
+    ],
     fecha_inicio: {
         type: Date,
         required: true,

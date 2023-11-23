@@ -1,24 +1,31 @@
 import Project from "../models/project.model.js";
 import User from "../models/user.model.js";
+import { generarCodigoAleatorio } from '../libs/rnd.js';
+import moment from 'moment';
 
 export const registerProject = async (req, res) => {
 
-    const { id_responsable, titulo, descripcion, clave, fecha_inicio } = req.body;
+    const { id_responsable, titulo, descripcion } = req.body;
+    let fecha_inicio = req.body.fecha_inicio;
 
-    if (![id_responsable, titulo, descripcion, clave, fecha_inicio].includes('')) {
-
-        // Validamos el formato de fecha con expresiones regulares.
+    if (![id_responsable, titulo, descripcion].includes('')) {
+        
+        //Si no se agrega la fecha se le agrega por defecto la fecha de hoy
         if (fecha_inicio == "") {
-            console.log(new Date());
-            if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha_inicio)) {
+
+            const hoy = moment();
+            fecha_inicio = hoy.format('YYYY-MM-DD');
+            console.log(hoy.format('YYYY-MM-DD'));
+        }
+        // Validamos el formato de fecha con expresiones regulares.
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha_inicio)) {
                 return res.status(400).json({ mensaje: "Formato de fecha de inicio no válido" });
-            }
         }
 
         try {
             // Validamos que exista el usuario antes de crear el proyecto.
             const userFound = await User.findById(id_responsable);
-
+            
             if (userFound) {
 
                 let clave = generarCodigoAleatorio();

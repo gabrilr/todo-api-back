@@ -63,46 +63,6 @@ export const registerUser = async (req, res) => {
     }
 };
 
-export const updateUser = async (req, res) => {
-
-    const { id, nombre, contrasena } = req.body;
-
-
-    if (![id, nombre, contrasena].includes('')) {
-
-        if (contrasena.length < 8 || !/[A-Z]/.test(contrasena) || !/[a-z]/.test(contrasena) || !/\d/.test(contrasena) || !/[!@#$%^&*(),.?":{}|<>_]/.test(contrasena)) {
-            return res.status(400).json({ mensaje: "La contraseña es muy debil, recuerda poner un numero, una mayuscula y un digito, y que sea mayor a 8 caracteres. " });
-        } else {
-            try {
-                // Hasheo de la contraseña recibida
-                const contrasena_hash = await bcrypt.hash(contrasena, 10);
-                try {
-                    //console.log(id+" "+nombre+" "+contrasena_hash);
-                    const user = await User.findByIdAndUpdate(id, {
-                                    nombre, 
-                                    contrasena: contrasena_hash
-                                }, { new: true }); //Retornamos el usu actualizado, para usarlo en un futuro.
-                    if (!user) {
-                        return res.status(404).json({ error: 'Usuario no encontrado' });
-                    }
-                    //res.json(user);
-                    res.json({mensaje: "Se actualizaron los datos"});
-                } catch (error) {
-                    console.log(error);
-                    res.status(500).json({ error: 'Error al actualizar usuario' });
-                }
-
-            } catch (error) {
-                console.log(error);
-                return res.status(500).json({ mensaje: "Error interno del servidor, usuario no guardado." });
-            }
-        }
-
-    } else {
-        res.status(400).json({ mensaje: "Los campos no pueden estar vacíos." });
-    }
-};
-
 export const login = async (req, res) => {
 
     const { id } = req.body;
@@ -162,5 +122,4 @@ export const logout = async (req, res) => {
         console.log(error);
         return res.status(500).json({ mensaje: "Error interno del servidor, usuario no guardado." });
     }
-
 };
