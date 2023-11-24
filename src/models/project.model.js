@@ -29,6 +29,7 @@ const projectSchema = new mongoose.Schema({
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
+            unique: true,
         },
     ],
     fecha_inicio: {

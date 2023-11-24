@@ -85,23 +85,7 @@ export const allProjects = async (req, res) => {
     const id = req.body.id;
 
     try {
-        //const projects = await Project.find({_id: req.params.id}).select('titulo ');
-        //const projects = await Project.find({ id_responsable: idResponsableBuscado }, { titulo: 1, clave: 1, descripcion: 1, _id: 1 });
-        // const projects = await Project.find({id_responsable: id, colaboradores: id},
-        //                             { titulo: 1, clave: 1, descripcion: 1, _id: 1 });
-
-                            // colaboradores: {
-                            //     $elemMatch: { id_colaborador: id }
-                            // }
-                        //Project.find({ colaboradores: userId });
-        //     , (err, projects) => {
-        //     if (err) {
-        //         console.error(err);
-        //     } else {
-        //         console.log(projects);
-        //     }
-        // }
-        //);
+        
         const projects = await Project.find(
             {
               $or: [
@@ -116,17 +100,16 @@ export const allProjects = async (req, res) => {
 
             const totalTickets = await Ticket.countDocuments({ id_proyecto: project._id });
             const ticketsDone = await Ticket.countDocuments({ id_proyecto: project._id, estatus: 'done' });
-            const ticketsCheck = await Ticket.find({ id_proyecto: project._id, estatus: 'done' });
+            const ticketsCheck = await Ticket.find({ id_proyecto: project._id, estatus: 'check' });
             
-            //proyecto: project,
             return {
+                _id: project._id,
                 titulo: project.titulo,
                 clave: project.clave,
                 totalTickets: totalTickets,
                 ticketsDone: ticketsDone,
-                ticketsCheck: ticketsCheck,
+                ticketsCheck: ticketsCheck
             };
-
         }));
 
         res.json(myprojects);
@@ -139,28 +122,36 @@ export const allProjects = async (req, res) => {
 
 export const addNewColab = async (req, res) => {
 
-    //const id_proyecto = req.body.id;
     const { id_proyecto, id } = req.body;
 
-    try {
-        
+    const userFound = await User.findById(id);
+    const pro = await Project.findById();
+    if (userFound) {
+
         try {
-            const proyectoActualizado = await Project.findByIdAndUpdate(
-                id_proyecto ,
-                { $push: { colaboradores: id } },
-                { new: true }
-            );
-            res.json(
-                {mensaje: 'ok'}
-            );
+            
+            try {
+
+                const projAdd = await Project.findByIdAndUpdate(
+                    id_proyecto ,
+                    { $push: { colaboradores: id } },
+                    { new: true }
+                );
+                res.json(
+                    {
+                        mensaje: 'ok',
+                        colaboradores: colaboradores
+                    }
+                );
+
+            } catch (error) {
+                res.status(500).json({ mensaje: "Error al obtener los proyectos" });
+            }
 
         } catch (error) {
-            res.status(500).json({ mensaje: "Error al obtener los proyectos" });
+            console.error(error);
+            res.status(500).json({ mensaje: "Error interno del servidor al crear el proyecto" });
         }
-
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ mensaje: "Error interno del servidor al crear el proyecto" });
     }
 
 }
