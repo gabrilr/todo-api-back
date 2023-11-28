@@ -40,6 +40,8 @@ const projectSchema = new mongoose.Schema({
     fecha_fin: {
         type: Date,
     },
+}, {
+    timestamps: true, // Agregamos campos de auditoria
 });
 
 export default mongoose.model('Project', projectSchema);

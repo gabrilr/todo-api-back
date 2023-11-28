@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema({
         maxlength: 60, 
     }
 }, {
-    timestamps: true, // Agrega createdAt y updatedAt automáticamente
+    timestamps: true, // Agregamos campos de auditoria
 });
 
 export default mongoose.model('User', userSchema);

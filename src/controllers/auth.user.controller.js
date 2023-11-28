@@ -63,6 +63,52 @@ export const registerUser = async (req, res) => {
     }
 };
 
+export const updateUser = async (req, res) => {
+
+    const { email, nombre, contrasena } = req.body;
+
+    if (![email, nombre, contrasena].includes('')) {
+
+        // Validación de correo.
+        const expRegular = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!expRegular.test(email)) {
+            
+            return res.status(400).json({ mensaje: "Formato de correo electrónico no válido." });
+        } else {
+            // Validación de la contraseña
+            if (contrasena.length < 8 || !/[A-Z]/.test(contrasena) || !/[a-z]/.test(contrasena) || !/\d/.test(contrasena) || !/[!@#$%^&*(),.?":{}|<>_]/.test(contrasena)) {
+                return res.status(400).json({ mensaje: "La contraseña es muy debil, recuerda poner un numero, una mayuscula y un digito, y que sea mayor a 8 caracteres. " });
+            } else {
+                try {
+                    // Hasheo de la contraseña recibida
+                    const contrasena_hash = await bcrypt.hash(contrasena, 10);
+    
+                    const newUser = new User({
+                        email,
+                        nombre,
+                        contrasena: contrasena_hash,
+                    });
+    
+                    const userSaved = await newUser.save();
+                    // Respuesta de Usuario creado.
+                    res.json({
+                        id: userSaved._id,
+                        email: userSaved.email,
+                        nombre: userSaved.nombre,
+                    });
+
+                } catch (error) {
+                    console.log(error);
+                    return res.status(500).json({ mensaje: "Error interno del servidor, usuario no guardado." });
+                }
+            }
+        }
+
+    } else {
+        res.status(400).json({ mensaje: "Los campos no pueden estar vacíos." });
+    }
+};
+
 export const login = async (req, res) => {
 
     const { id } = req.body;

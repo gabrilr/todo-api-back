@@ -11,13 +11,13 @@ const ticketSchema = new mongoose.Schema({
         required: true,
         ref: 'User'
     },
-    /* En este esquema el único dato que no será obligatorio será 'descripcion' */
     titulo: {
         type: String,
         required: true,
         trim: true,
         minlength: 1,
     },
+    /* En este esquema el único dato que no será obligatorio será 'descripcion' */
     descripcion: {
         type: String,
         trim: true,
@@ -29,11 +29,13 @@ const ticketSchema = new mongoose.Schema({
         enum: ['todo', 'doing', 'check', 'done'],
         default: 'todo',
     },
-    fotos: [{
-        type: String,
-        trim: true,
-        unique: true
-    }],
+    fotos: [
+        {
+            type: String,
+            trim: true,
+            unique: true
+        }
+    ],
     comentarios: [{
         id_usuario: {
             type: mongoose.Schema.Types.ObjectId,
@@ -57,6 +59,8 @@ const ticketSchema = new mongoose.Schema({
             },
         }
     }],
+}, {
+    timestamps: true, // Agregamos campos de auditoria
 });
 
 export default mongoose.model('Ticket', ticketSchema);

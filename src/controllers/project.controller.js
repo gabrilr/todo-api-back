@@ -125,13 +125,17 @@ export const addNewColab = async (req, res) => {
     const { id_proyecto, id } = req.body;
 
     const userFound = await User.findById(id);
-    const pro = await Project.findById();
-    if (userFound) {
+    const project = await Project.findById(id_proyecto);
+    if (userFound && project) {
 
         try {
-            
             try {
-
+                if (project.id_responsable == id) {
+                    return res.json({ mensaje: "El usuario responsable no puede ser al mismo tiempo colaborador" });
+                }
+                if (project.colaboradores.includes(id)) {
+                    return res.json({ mensaje: "Ya eres colaborador de este proyecto" });
+                }
                 const projAdd = await Project.findByIdAndUpdate(
                     id_proyecto ,
                     { $push: { colaboradores: id } },
@@ -139,13 +143,13 @@ export const addNewColab = async (req, res) => {
                 );
                 res.json(
                     {
-                        mensaje: 'ok',
-                        colaboradores: colaboradores
+                        mensaje: 'Te has unido al proyecto, con exito',
+                        colaboradores: projAdd.colaboradores
                     }
                 );
 
             } catch (error) {
-                res.status(500).json({ mensaje: "Error al obtener los proyectos" });
+                res.status(500).json({ mensaje: "Error al añadir un nuevo colaborador" });
             }
 
         } catch (error) {
@@ -153,5 +157,4 @@ export const addNewColab = async (req, res) => {
             res.status(500).json({ mensaje: "Error interno del servidor al crear el proyecto" });
         }
     }
-
 }
