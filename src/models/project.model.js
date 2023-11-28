@@ -26,10 +26,16 @@ const projectSchema = new mongoose.Schema({
         minlength: 6,
     },
     colaboradores: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-            unique: true,
+        {   
+            colaborador:{
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User',
+                unique: true,
+            },
+            fecha_ingreso:{
+                type: Date,
+                default: Date.now
+            }
         },
     ],
     fecha_inicio: {

@@ -3,6 +3,7 @@ import User from "../models/user.model.js";
 import Ticket from "../models/ticket.model.js";
 import { generarCodigoAleatorio } from '../libs/rnd.js';
 import moment from 'moment';
+import { log } from "console";
 
 export const registerProject = async (req, res) => {
 
@@ -32,7 +33,6 @@ export const registerProject = async (req, res) => {
                 let clave = generarCodigoAleatorio();
                 let claveRepetida = await Project.find({ clave: clave });
 
-                //console.log(JSON.stringify(claveRepetida));
                 while(!claveRepetida.length === 0){
 
                     console.log('clave repetida');
@@ -71,7 +71,7 @@ export const registerProject = async (req, res) => {
 
         } catch (error) {
             console.log("Error al crear el proyecto ", error);
-            res.status(500).json({ mensaje: "Error al buscar al usuario" });
+            res.status(500).json({ mensaje: "Error, id usuario no valido." });
         }
 
     } else {
@@ -85,7 +85,6 @@ export const allProjects = async (req, res) => {
     const id = req.body.id;
 
     try {
-        
         const projects = await Project.find(
             {
               $or: [
@@ -120,7 +119,28 @@ export const allProjects = async (req, res) => {
     }
 }
 
-export const addNewColab = async (req, res) => {
+export const allColabProject = async (req, res) => {
+
+    const _id = req.body.id;
+
+    try {
+        const mycolabProjects = await Project.findById( _id, { colaborador: 1 }).populate({
+            path: 'colaboradores.colaborador',
+            select: '-contrasena -createdAt -updatedAt -__v'
+        });// select excluye los campos de populate, pero se necesita un '-'.
+
+        if (!mycolabProjects) {
+            res.status(404).json({ mensaje: "Proyecto no encontrado" });
+        }
+        res.json(mycolabProjects.colaboradores);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ mensaje: "Error interno del servidor al crear el proyecto" });
+    }
+}
+
+export const addNewColabProject = async (req, res) => {
 
     const { id_proyecto, id } = req.body;
 
@@ -129,32 +149,36 @@ export const addNewColab = async (req, res) => {
     if (userFound && project) {
 
         try {
-            try {
-                if (project.id_responsable == id) {
-                    return res.json({ mensaje: "El usuario responsable no puede ser al mismo tiempo colaborador" });
-                }
-                if (project.colaboradores.includes(id)) {
-                    return res.json({ mensaje: "Ya eres colaborador de este proyecto" });
-                }
-                const projAdd = await Project.findByIdAndUpdate(
-                    id_proyecto ,
-                    { $push: { colaboradores: id } },
-                    { new: true }
-                );
-                res.json(
-                    {
-                        mensaje: 'Te has unido al proyecto, con exito',
-                        colaboradores: projAdd.colaboradores
-                    }
-                );
-
-            } catch (error) {
-                res.status(500).json({ mensaje: "Error al añadir un nuevo colaborador" });
+            if (project.id_responsable == id) {
+                return res.json({ mensaje: "El usuario responsable no puede ser al mismo tiempo colaborador" });
+            }
+            //console.log(JSON.stringify(project.colaboradores));
+            const colabExistente = project.colaboradores.find(colab => 
+                colab.colaborador.toString() == id // recorre el json y busca el id
+            );
+            
+            if (colabExistente) {
+                return res.status(400).json({ mensaje: "El colaborador ya está registrado en el proyecto" });
             }
 
+            project.colaboradores.push({
+                colaborador: id,
+                //fecha_ingreso: new Date(), // no es necesario agregar fecha
+            });
+            const proyectoActualizado = await project.save();
+
+            // const projAdd = await Project.findByIdAndUpdate(
+            //     id_proyecto ,
+            //     { $push: { colaboradores: id } },
+            //     { new: true }
+            // );
+            res.json({
+                    mensaje: 'Te has unido al proyecto, con exito',
+            });
+
         } catch (error) {
-            console.error(error);
-            res.status(500).json({ mensaje: "Error interno del servidor al crear el proyecto" });
+            console.log(error);
+            res.status(500).json({ mensaje: "Error al añadir un nuevo colaborador" });
         }
     }
 }

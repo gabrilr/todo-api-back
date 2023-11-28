@@ -36,29 +36,31 @@ const ticketSchema = new mongoose.Schema({
             unique: true
         }
     ],
-    comentarios: [{
-        id_usuario: {
-            type: mongoose.Schema.Types.ObjectId,
-            required: true,
-            ref: 'User'
-        },
-        contenido: {
-            type: String,
-            required: true,
-            trim: true,
-            minlength: 2,
-        },
-        fecha: {
-            type: Date,
-            default: Date.now,
-            validate: {
-                validator: function (value) {
-                    return value <= new Date();
-                },
-                message: 'La fecha de creación no puede estar en el futuro',
+    comentarios: [
+        {
+            id_usuario: {
+                type: mongoose.Schema.Types.ObjectId,
+                required: true,
+                ref: 'User'
             },
+            contenido: {
+                type: String,
+                required: true,
+                trim: true,
+                minlength: 2,
+            },
+            fecha: {
+                type: Date,
+                default: Date.now,
+                validate: {
+                    validator: function (value) {
+                        return value <= new Date();
+                    },
+                    message: 'La fecha de creación no puede estar en el futuro',
+                },
+            }
         }
-    }],
+    ],
 }, {
     timestamps: true, // Agregamos campos de auditoria
 });
