@@ -89,3 +89,83 @@ export const allTickets = async (req, res) => {
         res.status(500).json({ mensaje: "Error interno del servidor al crear el proyecto" });
     }
 }
+
+
+export const findTicket = async (req, res) => {
+
+    const _id = req.body.id;
+    const project = await projectModel.findById(_id);
+
+    if (!project) {
+        return res.status(404).json({ mensaje: "Error al obtener los ticket del proyecto." });
+    }
+
+    try {
+        const todo = await Ticket.find(
+            {
+                $and: [
+                  { id_proyecto: _id },
+                  { estatus: "todo" },
+                ],
+              },
+            {  _id: 1, id_responsable: 1, titulo: 1, descripcion: 1, estatus: 1 }
+        );
+
+        const doing = await Ticket.find(
+            {
+                $and: [
+                  { id_proyecto: _id },
+                  { estatus: "doing" },
+                ],
+              },
+            {  _id: 1, id_responsable: 1, titulo: 1, descripcion: 1, estatus: 1 }
+        );
+        
+        const check = await Ticket.find(
+            {
+                $and: [
+                  { id_proyecto: _id },
+                  { estatus: "check" },
+                ],
+              },
+            {  _id: 1, id_responsable: 1, titulo: 1, descripcion: 1, estatus: 1 }
+        );
+
+        const done = await Ticket.find(
+            {
+                $and: [
+                  { id_proyecto: _id },
+                  { estatus: "done" },
+                ],
+              },
+            {  _id: 1, id_responsable: 1, titulo: 1, descripcion: 1, estatus: 1 }
+        );
+
+        res.json({
+
+            containers: {
+                'container-1': {
+                    title: 'Por hacer',
+                    items: todo,
+                },
+                'container-2': {
+                    title: 'Haciendo',
+                    items: doing,
+                },
+                'container-3': {
+                    title: 'En revisión',
+                    items: check,
+                },
+                'container-4': {
+                    title: 'Hecho',
+                    items: done,
+                },
+            },
+
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ mensaje: "Error interno del servidor al buscar el proyecto" });
+    }
+}

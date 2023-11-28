@@ -83,23 +83,23 @@ export const registerProject = async (req, res) => {
 export const allProjects = async (req, res) => {
 
     const id = req.body.id;
-
+    //console.log('->'+id);
     try {
         const projects = await Project.find(
             {
               $or: [
                 { id_responsable: id },
-                { colaboradores: id },
+                { 'colaborador.colaborador': id },
               ],
             },
             { titulo: 1, clave: 1, descripcion: 1, _id: 1 }
         );
-
+        //console.log(JSON.stringify(projects));
         const myprojects = await Promise.all(projects.map(async (project) => {
 
             const totalTickets = await Ticket.countDocuments({ id_proyecto: project._id });
             const ticketsDone = await Ticket.countDocuments({ id_proyecto: project._id, estatus: 'done' });
-            const ticketsCheck = await Ticket.find({ id_proyecto: project._id, estatus: 'check' });
+            const ticketsCheck = await Ticket.find({ id_proyecto: project._id, estatus: 'check' },{_id:1, titulo:1, descripcion:1 });
             
             return {
                 _id: project._id,
