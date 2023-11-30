@@ -63,7 +63,7 @@ export const allTickets = async (req, res) => {
     try {
         const tickets = await Ticket.find(
             { id_proyecto: _id },
-            {  _id: 1, id_responsable: 1, titulo: 1, descripcion: 1 }
+            { _id: 1, id_responsable: 1, titulo: 1, descripcion: 1 }
         );
 
         // const myprojects = await Promise.all(projects.map(async (project) => {
@@ -71,7 +71,7 @@ export const allTickets = async (req, res) => {
         //     const totalTickets = await Ticket.countDocuments({ id_proyecto: project._id });
         //     const ticketsDone = await Ticket.countDocuments({ id_proyecto: project._id, estatus: 'done' });
         //     const ticketsCheck = await Ticket.find({ id_proyecto: project._id, estatus: 'check' });
-            
+
         //     return {
         //         _id: project._id,
         //         titulo: project.titulo,
@@ -104,63 +104,119 @@ export const findTicket = async (req, res) => {
         const todo = await Ticket.find(
             {
                 $and: [
-                  { id_proyecto: _id },
-                  { estatus: "todo" },
+                    { id_proyecto: _id },
+                    { estatus: "todo" },
                 ],
-              },
-            {  _id: 1, id_responsable: 1, titulo: 1, descripcion: 1, estatus: 1 }
+            },
+            // {  _id: 1, id_responsable: 1, titulo: 1, descripcion: 1, estatus: 1 }
+            { _id: 1 }
         );
+
+        const resultTodo = todo.map(item => item._id);
 
         const doing = await Ticket.find(
             {
                 $and: [
-                  { id_proyecto: _id },
-                  { estatus: "doing" },
+                    { id_proyecto: _id },
+                    { estatus: "doing" },
                 ],
-              },
-            {  _id: 1, id_responsable: 1, titulo: 1, descripcion: 1, estatus: 1 }
+            },
+            // {  _id: 1, id_responsable: 1, titulo: 1, descripcion: 1, estatus: 1 }
+            { _id: 1 }
         );
-        
+
+        const resultDoing = doing.map(item => item._id);
+
         const check = await Ticket.find(
             {
                 $and: [
-                  { id_proyecto: _id },
-                  { estatus: "check" },
+                    { id_proyecto: _id },
+                    { estatus: "check" },
                 ],
-              },
-            {  _id: 1, id_responsable: 1, titulo: 1, descripcion: 1, estatus: 1 }
+            },
+            // {  _id: 1, id_responsable: 1, titulo: 1, descripcion: 1, estatus: 1 }
+            { _id: 1 }
         );
+
+        const resultCheck = check.map(item => item._id);
 
         const done = await Ticket.find(
             {
                 $and: [
-                  { id_proyecto: _id },
-                  { estatus: "done" },
+                    { id_proyecto: _id },
+                    { estatus: "done" },
                 ],
-              },
-            {  _id: 1, id_responsable: 1, titulo: 1, descripcion: 1, estatus: 1 }
+            },
+            { _id: 1 } // Esto devolverá solo la clave _id
         );
+        
+        // Transformando el resultado para obtener un array de valores de _id
+        const resultDone = done.map(item => item._id);
+
+        /*
+        const myprojects = await Promise.all(projects.map(async (project) => {
+
+            const totalTickets = await Ticket.countDocuments({ id_proyecto: project._id });
+            const ticketsDone = await Ticket.countDocuments({ id_proyecto: project._id, estatus: 'done' });
+            const ticketsCheck = await Ticket.find({ id_proyecto: project._id, estatus: 'check' },{_id:1, titulo:1, descripcion:1 });
+            
+            return {
+                '{_id}':{
+                    _id,
+                    titulo:project.titulo
+                }_id: project._id,
+                titulo: project.titulo,
+                clave: project.clave,
+                totalTickets: totalTickets,
+                ticketsDone: ticketsDone,
+                ticketsCheck: ticketsCheck
+            };
+        }));
+        */
+
+        const items = await Ticket.find(
+            {
+                $and: [
+                    { id_proyecto: _id },
+                ],
+            },
+            { _id: 1, id_responsable: 1, titulo: 1, descripcion: 1, estatus: 1 }
+        );
+        const itemss = {};
+        await Promise.all(items.map(async (item) => {
+
+            let itemDict = {};
+            itemDict[item._id] = { 
+              id: item._id,
+             titulo: item.titulo,
+              descripcion: item.descripcion
+            };
+            
+            return Object.assign(itemss , itemDict);
+         
+        }));
 
         res.json({
 
             containers: {
                 'container-1': {
                     title: 'Por hacer',
-                    items: todo,
+                    items: resultTodo,
                 },
                 'container-2': {
                     title: 'Haciendo',
-                    items: doing,
+                    items: resultDoing,
                 },
                 'container-3': {
                     title: 'En revisión',
-                    items: check,
+                    items: resultCheck,
                 },
                 'container-4': {
                     title: 'Hecho',
-                    items: done,
+                    items: resultDone,
                 },
             },
+            items: itemss
 
         });
 
