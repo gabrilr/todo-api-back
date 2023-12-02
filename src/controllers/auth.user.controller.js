@@ -29,12 +29,20 @@ export const registerUser = async (req, res) => {
                         contrasena: contrasena_hash,
                     });
     
-                    const userSaved = await newUser.save();
-                    // Respuesta de Usuario creado.
+                    const userSaved = await newUser.save((err) => {
+                        if (err) {
+                            if (err.code === 11000 || err.code === 11001) {
+                                // Clave duplicada
+                                return res.status(409).json({ error: 'Clave duplicada. Ya existe un documento con este valor único.' });
+                            } else {
+                                // Otro tipo de error
+                                console.error('Error al guardar el documento:', err);
+                                return res.status(500).json({ error: 'Error interno del servidor.'});
+                            }
+                        }
+                    });
                     res.json({
-                        id: userSaved._id,
-                        email: userSaved.email,
-                        nombre: userSaved.nombre,
+                        mensaje: 'Usuario registrado'
                     });
                     
                     /*jwt.sign(
@@ -53,7 +61,7 @@ export const registerUser = async (req, res) => {
                     
                 } catch (error) {
                     console.log(error);
-                    return res.status(500).json({ mensaje: "Error interno del servidor, usuario no guardado." });
+                    return res.status(400).json({ mensaje: "Error interno del servidor, usuario no guardado." });
                 }
             }
         }

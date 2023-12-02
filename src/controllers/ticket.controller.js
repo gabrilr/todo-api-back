@@ -7,6 +7,7 @@ export const registerTicket = async (req, res) => {
 
     // Validación de existencia de campos
     console.log(JSON.stringify(req.body));
+
     if ([titulo, descripcion, id_responsable].includes('')) {
         return res.status(400).json({ mensaje: "Faltaron algunos datos..." });
     }
@@ -47,7 +48,7 @@ export const registerTicket = async (req, res) => {
 
     } catch (error) {
         console.log("Error al crear el ticket ", error);
-        res.status(500).json({ mensaje: "Error al buscar al usuario" });
+        res.status(500).json({ mensaje: "Error al crear el ticket" });
     }
 };
 
@@ -223,5 +224,25 @@ export const findTicket = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ mensaje: "Error interno del servidor al buscar el proyecto" });
+    }
+}
+
+
+export const updateEstatus = async (req, res) => {
+
+    const { id_ticket, estatus } = req.body;
+
+    if (![id_ticket, estatus].includes('')) {
+
+        const updatedTicket = await Ticket.findOneAndUpdate(
+            { _id: id_ticket },
+            { $set: { estatus: estatus } },
+            { new: true }
+        );
+
+        if (!updatedTicket) {
+            return res.status(404).json({ mensaje: "Ticket no encontrado" });
+        }
+        res.status(201).json();
     }
 }
