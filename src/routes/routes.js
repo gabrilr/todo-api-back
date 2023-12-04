@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { registerUser, updateUser } from "../controllers/auth.user.controller.js";
 import { registerProject, allProjects, allColabProject, addNewColabProject } from "../controllers/project.controller.js";
-import { allTickets, registerTicket, findTicket, updateEstatus } from "../controllers/ticket.controller.js";
+import { allTickets, registerTicket, findTicket, updateEstatus, ticketCalendar } from "../controllers/ticket.controller.js";
 
 const router = Router();
 
@@ -18,6 +18,7 @@ router.post('/ticket/register/:id', registerTicket);
 router.post('/project/ticket/all', allTickets);
 router.post('/project/ticket/find', findTicket);
 router.post('/ticket/update/', updateEstatus);
+router.post('/ticket/calendar', ticketCalendar);
 //router.post('/ticket/add/comment/:id', addCommentToTicket);
 
 export default router;

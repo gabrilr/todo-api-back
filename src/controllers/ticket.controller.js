@@ -1,6 +1,7 @@
 import projectModel from "../models/project.model.js";
 import Ticket from "../models/ticket.model.js";
 import User from "../models/user.model.js";
+import moment from "moment";
 
 export const registerTicket = async (req, res) => {
     const { titulo, descripcion, id_responsable/*, fotos*/ } = req.body;
@@ -150,7 +151,7 @@ export const findTicket = async (req, res) => {
             },
             { _id: 1 } // Esto devolverá solo la clave _id
         );
-        
+
         // Transformando el resultado para obtener un array de valores de _id
         const resultDone = done.map(item => item._id);
 
@@ -187,14 +188,14 @@ export const findTicket = async (req, res) => {
         await Promise.all(items.map(async (item) => {
 
             let itemDict = {};
-            itemDict[item._id] = { 
-              id: item._id,
-             titulo: item.titulo,
-              descripcion: item.descripcion
+            itemDict[item._id] = {
+                id: item._id,
+                titulo: item.titulo,
+                descripcion: item.descripcion
             };
-            
-            return Object.assign(itemss , itemDict);
-         
+
+            return Object.assign(itemss, itemDict);
+
         }));
 
         res.json({
@@ -244,5 +245,50 @@ export const updateEstatus = async (req, res) => {
             return res.status(404).json({ mensaje: "Ticket no encontrado" });
         }
         res.status(201).json();
+    }
+}
+
+export const ticketCalendar = async (req, res) => {
+
+    const _id = req.body.id;
+    const project = await projectModel.findById(_id);
+
+    if (!project) {
+        return res.status(404).json({ mensaje: "Error al obtener los ticket del proyecto." });
+    }
+
+    try {
+
+        const tickets = await Ticket.find(
+            {
+                $and: [
+                    { id_proyecto: _id },
+                ],
+            },
+            { _id: 1, titulo: 1, descripcion: 1, id_responsable: 1, createdAt: 1 }
+        ).populate({
+            path: 'id_responsable',
+            select: 'nombre -_id'
+        });
+
+        const formatCalendar = tickets.map(ticket => {
+            const formattedDate = moment(ticket.createdAt).format('YYYY-MM-DD'); // Formatea la fecha según tu preferencia
+
+            return {
+                title: ticket.titulo + ' - ' + ticket.id_responsable.nombre,
+                start: formattedDate,
+            };
+        });
+
+        res.json({
+
+            formatCalendar
+            //tickets
+
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ mensaje: "Error interno del servidor al buscar el proyecto" });
     }
 }
