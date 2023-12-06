@@ -68,22 +68,6 @@ export const allTickets = async (req, res) => {
             { _id: 1, id_responsable: 1, titulo: 1, descripcion: 1 }
         );
 
-        // const myprojects = await Promise.all(projects.map(async (project) => {
-
-        //     const totalTickets = await Ticket.countDocuments({ id_proyecto: project._id });
-        //     const ticketsDone = await Ticket.countDocuments({ id_proyecto: project._id, estatus: 'done' });
-        //     const ticketsCheck = await Ticket.find({ id_proyecto: project._id, estatus: 'check' });
-
-        //     return {
-        //         _id: project._id,
-        //         titulo: project.titulo,
-        //         clave: project.clave,
-        //         totalTickets: totalTickets,
-        //         ticketsDone: ticketsDone,
-        //         ticketsCheck: ticketsCheck
-        //     };
-        // }));
-
         res.json(tickets);
 
     } catch (error) {
@@ -113,7 +97,6 @@ export const findTicket = async (req, res) => {
             // {  _id: 1, id_responsable: 1, titulo: 1, descripcion: 1, estatus: 1 }
             { _id: 1 }
         );
-
         const resultTodo = todo.map(item => item._id);
 
         const doing = await Ticket.find(
@@ -126,7 +109,6 @@ export const findTicket = async (req, res) => {
             // {  _id: 1, id_responsable: 1, titulo: 1, descripcion: 1, estatus: 1 }
             { _id: 1 }
         );
-
         const resultDoing = doing.map(item => item._id);
 
         const check = await Ticket.find(
@@ -139,7 +121,6 @@ export const findTicket = async (req, res) => {
             // {  _id: 1, id_responsable: 1, titulo: 1, descripcion: 1, estatus: 1 }
             { _id: 1 }
         );
-
         const resultCheck = check.map(item => item._id);
 
         const done = await Ticket.find(
@@ -151,30 +132,7 @@ export const findTicket = async (req, res) => {
             },
             { _id: 1 } // Esto devolverá solo la clave _id
         );
-
-        // Transformando el resultado para obtener un array de valores de _id
-        const resultDone = done.map(item => item._id);
-
-        /*
-        const myprojects = await Promise.all(projects.map(async (project) => {
-
-            const totalTickets = await Ticket.countDocuments({ id_proyecto: project._id });
-            const ticketsDone = await Ticket.countDocuments({ id_proyecto: project._id, estatus: 'done' });
-            const ticketsCheck = await Ticket.find({ id_proyecto: project._id, estatus: 'check' },{_id:1, titulo:1, descripcion:1 });
-            
-            return {
-                '{_id}':{
-                    _id,
-                    titulo:project.titulo
-                }_id: project._id,
-                titulo: project.titulo,
-                clave: project.clave,
-                totalTickets: totalTickets,
-                ticketsDone: ticketsDone,
-                ticketsCheck: ticketsCheck
-            };
-        }));
-        */
+        const resultDone = done.map(item => item._id);// Transforma en un array
 
         const items = await Ticket.find(
             {
@@ -183,19 +141,21 @@ export const findTicket = async (req, res) => {
                 ],
             },
             { _id: 1, id_responsable: 1, titulo: 1, descripcion: 1, estatus: 1 }
-        );
+        ).populate('id_responsable', 'nombre');
+
         const itemss = {};
         await Promise.all(items.map(async (item) => {
 
-            let itemDict = {};
-            itemDict[item._id] = {
+            let itemArray = {};
+            itemArray[item._id] = {
                 id: item._id,
                 titulo: item.titulo,
+                responsable: item.id_responsable.nombre,
                 descripcion: item.descripcion
             };
-
-            return Object.assign(itemss, itemDict);
-
+            
+            return Object.assign(itemss , itemArray);
+         
         }));
 
         res.json({
@@ -228,6 +188,33 @@ export const findTicket = async (req, res) => {
     }
 }
 
+export const getTicketsHistorialDone = async (req, res) => {
+
+    const _id = req.body.id;
+    const project = await projectModel.findById(_id);
+
+    if (!project) {
+        return res.status(404).json({ mensaje: "Error al obtener los ticket del proyecto." });
+    }
+
+    try {
+        const ticketsDone = await Ticket.find(
+            {
+                $and: [
+                    { id_proyecto: _id },
+                    { estatus: "done" },
+                ],
+            },
+            { _id: 1, id_responsable: 1, titulo: 1, descripcion: 1, fecha: 1}
+        ).populate('id_responsable', 'nombre');
+
+        res.json(ticketsDone);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ mensaje: "Error interno del servidor al crear el proyecto" });
+    }
+}
 
 export const updateEstatus = async (req, res) => {
 
@@ -284,7 +271,6 @@ export const ticketCalendar = async (req, res) => {
 
             formatCalendar
             //tickets
-
         });
 
     } catch (error) {

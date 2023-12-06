@@ -89,7 +89,7 @@ export const allProjects = async (req, res) => {
             {
               $or: [
                 { id_responsable: id },
-                { 'colaborador.colaborador': id },
+                { 'colaboradores.colaborador': id },
               ],
             },
             { titulo: 1, clave: 1, descripcion: 1, _id: 1 }
@@ -142,10 +142,10 @@ export const allColabProject = async (req, res) => {
 
 export const addNewColabProject = async (req, res) => {
 
-    const { id_proyecto, id } = req.body;
+    const { id, clave } = req.body;
 
     const userFound = await User.findById(id);
-    const project = await Project.findById(id_proyecto);
+    const project = await Project.findOne({ clave: clave });
     if (userFound && project) {
 
         try {

@@ -44,7 +44,7 @@ export const registerUser = async (req, res) => {
                     res.json({
                         mensaje: 'Usuario registrado'
                     });
-                    
+                    //
                     /*jwt.sign(
                         {
                             id: userSaved._id,

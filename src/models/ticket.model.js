@@ -36,6 +36,13 @@ const ticketSchema = new mongoose.Schema({
             unique: true
         }
     ],
+    fecha_inicio: {
+        type: Date,
+        default: Date.now
+    },
+    fecha_fin: {
+        type: Date,
+    },
     comentarios: [
         {
             id_usuario: {
